@@ -6,9 +6,9 @@ assets = { directory = "./public", binding = "ASSETS", run_worker_first = ["/api
 
 [[d1_databases]]
 binding = "DB"
-database_name = "download-center-db"
-database_id = "replace-with-your-d1-id"
+database_name = "download-db"
+database_id = "25b8e3ad-83d3-443b-a7eb-7c7811239afe"
 
 [[kv_namespaces]]
-binding = "CACHE"
-id = "replace-with-your-kv-id"
+binding = "download-kv"
+id = "81739ffac7a64296ba7af8aeae1c4907"
