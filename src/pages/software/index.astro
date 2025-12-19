@@ -1,0 +1,12 @@
+---
+const res = await fetch(new URL("/api/public/search?q=", Astro.request.url));
+await res.text(); // placeholder; recommend build a dedicated list manifest if needed
+---
+<html>
+  <head><meta charset="utf-8" /><title>软件列表</title></head>
+  <body>
+    <h1>软件列表</h1>
+    <p>建议在发布时生成软件列表索引（manifest-search.json 已包含 software），前端可用 /api/public/search 或单独增加 /api/public/software-list。</p>
+    <p><a href="/">返回首页</a></p>
+  </body>
+</html>

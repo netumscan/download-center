@@ -1,0 +1,32 @@
+---
+const slug = Astro.params.productSlug;
+const res = await fetch(new URL(`/api/public/products/${slug}`, Astro.request.url));
+const data = res.ok ? await res.json() : null;
+---
+<html>
+  <head><meta charset="utf-8" /><title>{data?.product?.name ?? slug}</title></head>
+  <body>
+    <h1>{data?.product?.name ?? slug}</h1>
+    <p>设备分类：{data?.product?.device_category}</p>
+    {data?.product?.remark && <p>备注：{data.product.remark}</p>}
+    {data?.product?.description && <p>{data.product.description}</p>}
+
+    <h2>关联软件</h2>
+    <ul>
+      {(data?.software ?? []).map((s) => <li><a href={`/software/${s.slug}`}>{s.name}</a></li>)}
+    </ul>
+
+    <h2>关联文件资源</h2>
+    <ul>
+      {(data?.resources ?? []).map((r) => (
+        <li>
+          <a href={`/resources/${r.slug}`}>{r.title}</a>
+          {" "}({r.file_category}){" "}
+          <a href={r.download_url}>下载</a>
+        </li>
+      ))}
+    </ul>
+
+    <p><a href="/devices">按设备</a> | <a href="/software">按软件</a> | <a href="/">首页</a></p>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+---
+const slug = Astro.params.resourceSlug;
+const res = await fetch(new URL(`/api/public/resources/${slug}`, Astro.request.url));
+const data = res.ok ? await res.json() : null;
+const r = data?.resource;
+---
+<html>
+  <head><meta charset="utf-8" /><title>{r?.title ?? slug}</title></head>
+  <body>
+    <h1>{r?.title ?? slug}</h1>
+    <ul>
+      <li>资源ID：{r?.resource_id}</li>
+      <li>文件分类：{r?.file_category}</li>
+      <li>设备分类：{r?.device_category}</li>
+      <li>文件大小：{r?.file_size_bytes ?? "-"}</li>
+      <li>sha256：{r?.sha256 ?? "-"}</li>
+      <li>平台/架构：{r?.platform ?? "-"} / {r?.arch ?? "-"}</li>
+      <li>版本：{r?.version ?? "-"}</li>
+    </ul>
+    {r?.release_notes && <pre>{r.release_notes}</pre>}
+    {r?.download_url && <p><a href={r.download_url}>下载</a></p>}
+    <p><a href="/">首页</a></p>
+  </body>
+</html>

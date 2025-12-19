@@ -1,0 +1,31 @@
+---
+const res = await fetch(new URL("/api/public/home", Astro.request.url));
+const data = res.ok ? await res.json() : null;
+---
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>{data?.site?.site_name ?? "Download Center"}</title>
+  </head>
+  <body>
+    <h1>{data?.site?.site_name ?? "Download Center"}</h1>
+    {data?.site?.announcement && <p><strong>公告：</strong>{data.site.announcement}</p>}
+
+    <h2>精选产品</h2>
+    <ul>
+      {(data?.featured?.products ?? []).map((p) => <li><a href={`/products/${p.slug}`}>{p.name}</a> ({p.device_category})</li>)}
+    </ul>
+
+    <h2>精选软件</h2>
+    <ul>
+      {(data?.featured?.software ?? []).map((s) => <li><a href={`/software/${s.slug}`}>{s.name}</a> ({s.device_category})</li>)}
+    </ul>
+
+    <h2>最近更新资源</h2>
+    <ul>
+      {(data?.recent_resources ?? []).map((r) => <li><a href={`/resources/${r.slug}`}>{r.title}</a> - <a href={r.download_url}>下载</a></li>)}
+    </ul>
+
+    <p><a href="/devices">按设备浏览</a> | <a href="/software">按软件浏览</a></p>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+---
+const deviceCategory = Astro.params.deviceCategory;
+const res = await fetch(new URL("/api/public/devices", Astro.request.url));
+const data = res.ok ? await res.json() : null;
+const node = (data?.devices ?? []).find((d) => d.device_category === deviceCategory);
+---
+<html>
+  <head><meta charset="utf-8" /><title>{deviceCategory}</title></head>
+  <body>
+    <h1>设备：{deviceCategory}</h1>
+    <h2>产品系列</h2>
+    <ul>
+      {(node?.series ?? []).map((s) => (
+        <li><a href={`/devices/${deviceCategory}/series/${s.slug}`}>{s.name}</a></li>
+      ))}
+    </ul>
+    <p><a href="/devices">返回</a></p>
+  </body>
+</html>

@@ -1,15 +1,17 @@
 {
   "name": "download-center",
+  "type": "module",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
-    "provision": "node scripts/provision-resources.js",
-    "deploy": "npm run provision && wrangler deploy",
-    "fmt": "node -e \"console.log('No formatter configured.');\""
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "lint": "echo \"(optional) add eslint/prettier\"",
+    "deploy": "npm run build && wrangler deploy"
   },
-  "devDependencies": {
-    "wrangler": "^4.0.0"
+  "dependencies": {
+    "astro": "^5.0.0",
+    "@astrojs/cloudflare": "^12.0.0"
   }
 }

@@ -1,14 +1,23 @@
 name = "download-center"
-main = "src/worker.js"
+main = "dist/_worker.js"
 compatibility_date = "2025-12-01"
 
-assets = { directory = "./public", binding = "ASSETS", run_worker_first = ["/api/*", "/d/*", "/admin/*"] }
+# NOTE:
+# - Run `npm run build` to generate dist/_worker.js before deploying.
+# - Configure bindings below to match your Cloudflare account resources.
+
+[vars]
+EXTERNAL_ALLOWLIST = "pan.gzxlscan.cn,cloudflare.mayitek.com,hwfotadown.mayitek.com"
 
 [[d1_databases]]
 binding = "DB"
-database_name = "download-db"
-database_id = "25b8e3ad-83d3-443b-a7eb-7c7811239afe"
+database_name = "download-center-db"
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+[[r2_buckets]]
+binding = "R2_BUCKET"
+bucket_name = "download-center-r2"
 
 [[kv_namespaces]]
-binding = "download-kv"
-id = "81739ffac7a64296ba7af8aeae1c4907"
+binding = "KV_CACHE"
+id = "REPLACE_WITH_KV_NAMESPACE_ID"

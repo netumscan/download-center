@@ -1,0 +1,27 @@
+---
+const slug = Astro.params.softwareSlug;
+const res = await fetch(new URL(`/api/public/software/${slug}`, Astro.request.url));
+const data = res.ok ? await res.json() : null;
+---
+<html>
+  <head><meta charset="utf-8" /><title>{data?.software?.name ?? slug}</title></head>
+  <body>
+    <h1>{data?.software?.name ?? slug}</h1>
+    <p>设备分类：{data?.software?.device_category}</p>
+    {data?.software?.remark && <p>备注：{data.software.remark}</p>}
+    {data?.software?.description && <p>{data.software.description}</p>}
+
+    <h2>文件资源</h2>
+    <ul>
+      {(data?.resources ?? []).map((r) => (
+        <li>
+          <a href={`/resources/${r.slug}`}>{r.title}</a>
+          {" "}({r.platform ?? ""} {r.arch ?? ""} {r.version ?? ""}){" "}
+          <a href={r.download_url}>下载</a>
+        </li>
+      ))}
+    </ul>
+
+    <p><a href="/">首页</a></p>
+  </body>
+</html>

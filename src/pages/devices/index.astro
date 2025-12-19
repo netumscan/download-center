@@ -1,0 +1,16 @@
+---
+const res = await fetch(new URL("/api/public/devices", Astro.request.url));
+const data = res.ok ? await res.json() : null;
+---
+<html>
+  <head><meta charset="utf-8" /><title>按设备浏览</title></head>
+  <body>
+    <h1>按设备浏览</h1>
+    <ul>
+      {(data?.devices ?? []).map((d) => (
+        <li><a href={`/devices/${d.device_category}`}>{d.device_category}</a></li>
+      ))}
+    </ul>
+    <p><a href="/">返回首页</a></p>
+  </body>
+</html>
