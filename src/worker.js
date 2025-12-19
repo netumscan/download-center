@@ -348,6 +348,19 @@ export default {
         });
       }
 
+      // fetch current catalog (D1 -> static fallback), without mutating cache
+      if (request.method === "GET" && path === "/admin/api/catalog") {
+        const versionId = await getPublishedVersionId(env, ctx);
+        const catalog =
+          (await loadCatalogFromD1(env, versionId)) ||
+          (await loadCatalogFromStatic(request, env));
+        if (!catalog) return new Response("catalog not found", { status: 500 });
+
+        return new Response(JSON.stringify({ versionId, catalog }), {
+          headers: { "content-type": "application/json; charset=utf-8" }
+        });
+      }
+
       // refresh: read D1 and write KV, return catalog for download
       if (request.method === "POST" && path === "/admin/api/refresh") {
         const body = await request.json().catch(() => ({}));
