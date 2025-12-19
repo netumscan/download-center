@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>下载中心 · 管理</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <h1>下载中心 · 管理</h1>
+  <p>通过管理端发布新 catalog 到 D1，并手动刷新 KV 与下载最新 JSON。</p>
+
+  <div class="card">
+    <h3>鉴权</h3>
+    <div class="row">
+      <input id="admin-token" type="password" placeholder="Admin Token (Bearer)" size="40" />
+      <button id="btn-save-token">保存 Token</button>
+      <span id="auth-status" class="small"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>刷新缓存 / 导出 JSON</h3>
+    <div class="row">
+      <button id="btn-refresh">从 D1 读取已发布版本，写入 KV，并下载 JSON</button>
+      <button id="btn-get-version">获取当前已发布 version_id</button>
+    </div>
+    <div id="refresh-result" class="small"></div>
+  </div>
+
+  <div class="card">
+    <h3>发布新 Catalog 到 D1</h3>
+    <div class="row">
+      <input id="catalog-label" placeholder="版本标签（可选）" size="28" />
+      <button id="btn-import">发布并写入 KV</button>
+    </div>
+    <textarea id="catalog-json" rows="16" style="width:100%;" placeholder='粘贴 catalog JSON（包含 assets/devices）'></textarea>
+    <div id="import-result" class="small"></div>
+  </div>
+
+  <script src="/admin.js"></script>
+</body>
+</html>

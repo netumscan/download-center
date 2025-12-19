@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "wrangler dev",
-    "deploy": "wrangler deploy",
+    "provision": "node scripts/provision-resources.js",
+    "deploy": "npm run provision && wrangler deploy",
     "fmt": "node -e \"console.log('No formatter configured.');\""
   },
   "devDependencies": {

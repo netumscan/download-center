@@ -3,7 +3,7 @@
 > 项目名称：**download-center**  
 > 交付目标：在 Cloudflare Workers 上上线一个“下载中心”网站  
 > 下载方式：**HTTP 302 Redirect**（不代理文件流）  
-> 数据源：暂使用静态 `public/catalog.json`（后续可迁移 KV/D1）
+> 数据源：D1（结构化存储）+ KV 缓存，静态 `public/catalog.json` 作为兜底
 
 ---
 
@@ -33,6 +33,8 @@ download-center/
 └─ public/
    ├─ index.html
    ├─ app.js
+   ├─ admin.html
+   ├─ admin.js
    ├─ styles.css
    └─ catalog.json
 ```
@@ -42,8 +44,13 @@ download-center/
 ## 3. 路由与协议（Routes）
 
 - `GET /`：下载中心页面（静态）
+- `GET /admin`：管理页面（需设置 Admin Token）
 - `GET /api/catalog`：返回下载清单 JSON（公开）
 - `GET /d/<assetId>`：统一下载入口，302 跳转到 `assets[].url`
+- Admin API（需 `Authorization: Bearer <ADMIN_TOKEN>`）：
+  - `GET /admin/api/version`：查询当前已发布的 version_id
+  - `POST /admin/api/refresh`：从 D1 读取最新版本，写入 KV，并返回 JSON
+  - `POST /admin/api/import`：导入 catalog JSON 到 D1 并发布，同时写入 KV（返回 version_id）
 
 ---
 
@@ -79,14 +86,17 @@ download-center/
 ## 5. 开发任务（Work Items）
 
 ### 5.1 Worker
-- [x] `/api/catalog` 返回静态 catalog JSON
-- [x] `/d/<assetId>` 302 Redirect 到 `assets[].url`
+- [x] `/api/catalog` 返回 catalog JSON（优先 KV，命中 D1，静态兜底，带 version 化缓存）
+- [x] `/d/<assetId>` 302 Redirect 到 `assets[].url`（支持 KV 版跳转缓存）
 - [x] 静态资源托管（Static Assets binding）
+- [x] D1 接入：按最新已发布 version 读取 assets/devices/links 组装 catalog
+- [x] 管理 API：导入/刷新写 KV，查询当前 version
 
 ### 5.2 前端
 - [x] 两个视图：按资源 / 按设备型号
 - [x] 搜索与筛选（分类/平台/类型/架构）
 - [x] 点击下载统一走 `/d/<assetId>`
+- [x] 管理页 `/admin`：录入 Admin Token、粘贴 catalog JSON 导入到 D1、手动刷新 KV 并下载最新 JSON
 
 ---
 
@@ -97,15 +107,15 @@ download-center/
 - `/d/<不存在的assetId>` 返回 404
 - 首页可切换视图并正确渲染示例数据（NetumScan Pro / NetumVisualizer）
 - 所有链接为公开可访问 URL
+- 管理页：导入 catalog 成功返回 version_id，刷新操作会将最新已发布版本写入 KV，并返回可下载的 JSON
 
 ---
 
 ## 7. 后续演进（Roadmap）
 
-- KV 缓存：缓存 catalog 与 `assetId -> url`
-- D1：资产/型号/关联关系表结构化存储
 - 下载统计：在 `/d/<assetId>` 侧增加轻量日志（注意合规与最小化）
 - 鉴权：如需私有下载，可引入 token 或 presigned URL
+- 自动化：部署前自动创建 D1/KV（占位符检测 + wrangler create）
 
 ---
 
