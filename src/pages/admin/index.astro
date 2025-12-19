@@ -176,3 +176,268 @@
     </script>
   </body>
 </html>
+---
+import "../../styles/admin.css";
+---
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Download Center Admin</title>
+  </head>
+  <body class="bg-slate-50 text-slate-900">
+    <div class="min-h-screen flex">
+      <aside class="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col">
+        <div class="px-6 py-4 border-b border-slate-200">
+          <p class="text-xs font-semibold text-indigo-600 uppercase tracking-wide">Admin</p>
+          <h1 class="text-lg font-semibold">Download Center</h1>
+          <p class="text-sm text-slate-500">Access + RBAC 保护</p>
+        </div>
+        <nav class="flex-1 px-4 py-4 space-y-2 text-sm">
+          <a class="flex items-center gap-2 px-3 py-2 rounded-md bg-indigo-50 text-indigo-700 font-semibold">资源管理</a>
+          <a class="flex items-center gap-2 px-3 py-2 rounded-md text-slate-600 hover:bg-slate-100">上传</a>
+          <a class="flex items-center gap-2 px-3 py-2 rounded-md text-slate-600 hover:bg-slate-100">发布</a>
+        </nav>
+        <div class="px-4 py-3 border-t border-slate-200 text-xs text-slate-500">
+          请使用经 Access 授权的账号（发布仅 admin）。
+        </div>
+      </aside>
+
+      <main class="flex-1 px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        <header class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <div>
+            <p class="text-xs font-semibold text-indigo-600 uppercase tracking-wide">Console</p>
+            <h2 class="text-2xl font-semibold leading-tight">Download Center Admin</h2>
+            <p class="text-sm text-slate-500">最小可用后台 UI：资源创建/上传/发布</p>
+          </div>
+          <div class="flex items-center gap-2 text-xs text-slate-500">
+            <span class="inline-flex items-center gap-1 rounded-full bg-green-50 px-3 py-1 text-green-700 border border-green-100">Access Ready</span>
+            <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1">admin | editor</span>
+          </div>
+        </header>
+
+        <section class="bg-white shadow-sm border border-slate-200 rounded-lg p-6 space-y-4">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h3 class="text-lg font-semibold">资源创建 / 更新</h3>
+              <p class="text-sm text-slate-500">存储类型为 R2 时，先建记录再上传；EXTERNAL 需命中 allowlist 且必须 https。</p>
+            </div>
+            <span class="text-xs text-slate-400">POST / PATCH /api/admin/resources</span>
+          </div>
+          <form id="form_resource" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <label class="text-sm font-medium text-slate-700">resource_id
+                <input id="resource_id" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="业务唯一 ID" />
+              </label>
+              <label class="text-sm font-medium text-slate-700">slug
+                <input id="slug" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="仅字母数字._-" />
+              </label>
+              <label class="text-sm font-medium text-slate-700">标题
+                <input id="title" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+              </label>
+              <label class="text-sm font-medium text-slate-700">设备分类
+                <select id="device_category" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                  <option value="scanner">scanner</option>
+                  <option value="document_camera">document_camera</option>
+                  <option value="printer">printer</option>
+                  <option value="other">other</option>
+                </select>
+              </label>
+              <label class="text-sm font-medium text-slate-700">文件分类
+                <select id="file_category" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                  <option value="desktop_software">desktop_software</option>
+                  <option value="mobile_software">mobile_software</option>
+                  <option value="product_specs">product_specs</option>
+                  <option value="user_manual">user_manual</option>
+                  <option value="firmware">firmware</option>
+                </select>
+              </label>
+              <label class="text-sm font-medium text-slate-700">存储类型
+                <select id="storage_type" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                  <option value="R2">R2</option>
+                  <option value="EXTERNAL">EXTERNAL</option>
+                </select>
+              </label>
+              <label id="external_url_wrap" class="text-sm font-medium text-slate-700 hidden">External URL (https)
+                <input id="external_url" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="https://example.com/file.zip" />
+              </label>
+              <label class="text-sm font-medium text-slate-700">平台
+                <input id="platform" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="win/mac/linux/ios/android" />
+              </label>
+              <label class="text-sm font-medium text-slate-700">架构
+                <input id="arch" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="x64/arm64" />
+              </label>
+              <label class="text-sm font-medium text-slate-700">版本
+                <input id="version" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" placeholder="v1.0.0" />
+              </label>
+              <label class="text-sm font-medium text-slate-700">文件大小（字节，可选）
+                <input id="file_size_bytes" type="number" min="0" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+              </label>
+              <label class="text-sm font-medium text-slate-700">sha256（可选）
+                <input id="sha256" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+              </label>
+            </div>
+            <div class="flex flex-wrap items-center gap-4">
+              <label class="inline-flex items-center gap-2 text-sm text-slate-700">
+                <input id="is_published" type="checkbox" class="rounded border-slate-300 text-indigo-600 focus:ring-indigo-500" />
+                is_published
+              </label>
+              <div class="flex-1">
+                <label class="text-sm font-medium text-slate-700">Release Notes</label>
+                <textarea id="release_notes" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" rows="4" placeholder="可选"></textarea>
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <button type="submit" data-action="create" class="inline-flex items-center justify-center gap-2 rounded-md bg-indigo-600 px-4 py-2 text-white hover:bg-indigo-700 shadow-sm">创建资源</button>
+              <button type="button" id="btn_update" class="inline-flex items-center justify-center gap-2 rounded-md border border-slate-200 px-4 py-2 text-slate-700 hover:bg-slate-50">更新资源</button>
+            </div>
+          </form>
+          <div class="rounded-md bg-slate-900 text-slate-100 text-xs p-3 font-mono whitespace-pre-wrap" id="res_output"></div>
+        </section>
+
+        <section class="bg-white shadow-sm border border-slate-200 rounded-lg p-6 space-y-4">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h3 class="text-lg font-semibold">上传到 R2（≤ 50MB）</h3>
+              <p class="text-sm text-slate-500">需先创建 storage_type=R2 的资源记录。</p>
+            </div>
+            <span class="text-xs text-slate-400">POST /api/admin/upload</span>
+          </div>
+          <form id="form_upload" class="space-y-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+              <label class="text-sm font-medium text-slate-700">resource_id
+                <input id="upload_resource_id" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+              </label>
+              <label class="text-sm font-medium text-slate-700">文件
+                <input id="upload_file" type="file" class="mt-1 block w-full text-sm text-slate-700" />
+              </label>
+              <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-md bg-emerald-600 px-4 py-2 text-white hover:bg-emerald-700 shadow-sm">上传并回填</button>
+            </div>
+          </form>
+          <div class="rounded-md bg-slate-900 text-slate-100 text-xs p-3 font-mono whitespace-pre-wrap" id="upload_output"></div>
+        </section>
+
+        <section class="bg-white shadow-sm border border-slate-200 rounded-lg p-6 space-y-4">
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h3 class="text-lg font-semibold">发布生成 Manifest</h3>
+              <p class="text-sm text-slate-500">生成 manifest + 更新缓存版本戳（发布需 admin 角色）。</p>
+            </div>
+            <span class="text-xs text-slate-400">POST /api/admin/publish</span>
+          </div>
+          <form id="form_publish" class="space-y-3">
+            <label class="text-sm font-medium text-slate-700">备注（可选）
+              <input id="publish_note" class="mt-1 w-full rounded-md border-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+            </label>
+            <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-md bg-orange-600 px-4 py-2 text-white hover:bg-orange-700 shadow-sm">发布</button>
+          </form>
+          <div class="rounded-md bg-slate-900 text-slate-100 text-xs p-3 font-mono whitespace-pre-wrap" id="publish_output"></div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module">
+      import "flowbite";
+
+      const $ = (id) => document.getElementById(id);
+      const output = (id, data) => {
+        const el = $(id);
+        el.textContent = typeof data === "string" ? data : JSON.stringify(data, null, 2);
+      };
+
+      const storageSelect = $("storage_type");
+      const externalWrap = $("external_url_wrap");
+      const toggleExternal = () => {
+        externalWrap.classList.toggle("hidden", storageSelect.value !== "EXTERNAL");
+      };
+      storageSelect.addEventListener("change", toggleExternal);
+      toggleExternal();
+
+      async function api(path, opts) {
+        const res = await fetch(path, opts);
+        let json = null;
+        try {
+          json = await res.json();
+        } catch {
+          json = await res.text();
+        }
+        return { status: res.status, ok: res.ok, data: json };
+      }
+
+      $("form_resource").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const body = {
+          resource_id: $("resource_id").value.trim(),
+          slug: $("slug").value.trim(),
+          title: $("title").value.trim(),
+          device_category: $("device_category").value,
+          file_category: $("file_category").value,
+          storage_type: $("storage_type").value,
+          external_url: $("external_url").value.trim() || undefined,
+          platform: $("platform").value.trim() || undefined,
+          arch: $("arch").value.trim() || undefined,
+          version: $("version").value.trim() || undefined,
+          file_size_bytes: $("file_size_bytes").value ? Number($("file_size_bytes").value) : undefined,
+          sha256: $("sha256").value.trim() || undefined,
+          release_notes: $("release_notes").value || undefined,
+          is_published: $("is_published").checked
+        };
+        const res = await api("/api/admin/resources", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        output("res_output", res);
+      });
+
+      $("btn_update").addEventListener("click", async () => {
+        const body = {
+          id: $("resource_id").value.trim(),
+          title: $("title").value.trim() || undefined,
+          release_notes: $("release_notes").value || undefined,
+          is_published: $("is_published").checked,
+          file_size_bytes: $("file_size_bytes").value ? Number($("file_size_bytes").value) : undefined,
+          sha256: $("sha256").value.trim() || undefined,
+          platform: $("platform").value.trim() || undefined,
+          arch: $("arch").value.trim() || undefined,
+          version: $("version").value.trim() || undefined,
+          external_url: $("external_url").value.trim() || undefined
+        };
+        const res = await api("/api/admin/resources", {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        output("res_output", res);
+      });
+
+      $("form_upload").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const rid = $("upload_resource_id").value.trim();
+        const file = $("upload_file").files[0];
+        if (!rid || !file) {
+          output("upload_output", { error: "missing_resourceId_or_file" });
+          return;
+        }
+        const form = new FormData();
+        form.set("resourceId", rid);
+        form.set("file", file);
+        const res = await api("/api/admin/upload", { method: "POST", body: form });
+        output("upload_output", res);
+      });
+
+      $("form_publish").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const body = {};
+        const note = $("publish_note").value.trim();
+        if (note) body.note = note;
+        const res = await api("/api/admin/publish", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        output("publish_output", res);
+      });
+    </script>
+  </body>
+</html>
