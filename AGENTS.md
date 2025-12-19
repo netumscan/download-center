@@ -46,6 +46,7 @@
 - `public/software/{slug}.json`
 - `public/resource/{slug}.json`
 - `public/manifest-search.json`
+- `public/software-list` API 复用搜索索引
 
 版本快照：
 - `public/v/{publish_id}/...`
@@ -94,23 +95,34 @@
 - `src/pages/d/*` 与 `src/pages/go/*`：下载链路与审计
 - `src/pages/api/public/*`：public 只读接口
 - `src/pages/api/admin/*`：后台写接口（Access 保护）
+- `/admin`：最小可用后台 UI（资源创建/上传/发布）
 
 ### 5.2 安全红线
 - public manifest / public API 严禁返回 `external_url`
 - `/go` 不接受任何外部传入 URL 参数
 - External host 必须在 allowlist
+- Admin API 必须校验 Access + `admin_roles`（发布仅 admin）
 
 ### 5.3 质量要求
 - 所有 API 返回 JSON，包含明确错误码
 - D1 SQL 变更必须通过 `migrations/` 管理
 - 发布接口必须可重入（失败可重试，不破坏数据一致性）
+- 保持最小回归：`npm run lint`（astro check），`npm test`（基础逻辑单测）
 
 ---
 
 ## 6. Backlog（建议增强项）
-- 上传时流式计算 sha256 并自动写回
 - 资源列表页与筛选（单独 manifest）
 - 审计导出 CSV
 - 限速与 Bot 防护（KV 计数 + WAF 规则）
-- RBAC（admin_roles 生效）
+- 自动化端到端测试（Miniflare/Wrangler 覆盖 `/d` `/go`）
 
+---
+
+## 🎯 沟通协作原则
+
+### 基础交流规范
+
+- **语言要求**：使用英语思考，但始终用中文表达。
+- **表达风格**：直接、犀利、零废话。如果代码垃圾，你会告诉我为什么它是垃圾。
+- **技术优先**：批评永远针对技术问题，不针对个人。但你不会为了"友善"而模糊技术判断。

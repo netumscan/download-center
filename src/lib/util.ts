@@ -29,6 +29,13 @@ export function sha256Hex(input: string): Promise<string> {
   );
 }
 
+export function sha256HexBytes(input: ArrayBuffer | ArrayBufferView): Promise<string> {
+  const bytes = input instanceof ArrayBuffer ? new Uint8Array(input) : new Uint8Array(input.buffer, input.byteOffset, input.byteLength);
+  return crypto.subtle.digest("SHA-256", bytes).then((buf) =>
+    [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("")
+  );
+}
+
 export function randomTokenBase64Url(bytes = 32): string {
   const a = new Uint8Array(bytes);
   crypto.getRandomValues(a);

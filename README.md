@@ -20,6 +20,7 @@
 - `src/pages/api/admin/*`：后台 API（需 Cloudflare Access 保护）
 - `src/pages/d/[resourceSlug].ts`：统一下载入口（R2/External 分流）
 - `src/pages/go/[token].ts`：External 短 token 跳转入口
+- `src/pages/admin/index.astro`：最小可用后台 UI（资源创建/上传/发布）
 - `src/lib/*`：D1/R2/KV/发布/审计等封装
 - `migrations/*`：D1 迁移脚本
 
@@ -43,7 +44,7 @@
   - `/admin/*`
   - `/api/admin/*`
 
-> 代码层 `requireAdminAccess()` 目前只做占位；Access 的强制认证由 Cloudflare 在边缘执行。
+> 代码层 `requireAdminAccess()` 已返回 Access email 并支持 `admin_roles` RBAC（admin/editor），Access 的强制认证仍由 Cloudflare 在边缘执行。
 
 ---
 
@@ -68,6 +69,12 @@ npm run dev
 
 > 如需 `wrangler dev`，可复制 `.dev.vars.example` 为 `.dev.vars` 并补齐变量。
 
+### 3.4 代码检查与测试
+```bash
+npm run lint   # astro check
+npm test       # node --test 基础逻辑测试（range/allowlist）
+```
+
 ### 3.4 部署
 ```bash
 npm run deploy
@@ -78,12 +85,12 @@ npm run deploy
 ## 4. 最小可用流程（MVP）
 
 ### 4.1 后台录入一条资源
-- `POST /api/admin/resources`
+- 访问 `/admin` 页面，按表单创建资源（或直接调用 `POST /api/admin/resources`）
   - `storage_type=R2`：先建资源记录，再走 `/api/admin/upload`
   - `storage_type=EXTERNAL`：必须填 `external_url`（https + allowlist host）
 
 ### 4.2 发布（生成 manifest + 更新缓存版本戳）
-- `POST /api/admin/publish`
+- `/admin` 页面点击发布，或 `POST /api/admin/publish`
   - 生成 `public/manifest-*.json` 与 `public/v/{publish_id}/...`
   - 更新 KV `cache_ver:rm` 为最新 `publish_id`
 
@@ -97,15 +104,14 @@ npm run deploy
 2) `/go/:token`：
    - token 单次使用、60s 过期
    - 仅跳转 allowlist 域名，防开放重定向
-3) 审计写入使用 `waitUntil`，失败不阻塞下载
+3) Admin API 强制 Access + `admin_roles` RBAC（发布需 admin）
+4) 审计写入使用 `waitUntil`，失败不阻塞下载
 
 ---
 
 ## 6. 你可以按需增强的点
 
-- 后台 UI（/admin）：可用 Astro + CSR 或任意前端框架嵌入
-- RBAC：启用 `admin_roles` 表，按 email/role 限制发布/删除
-- 上传时计算 sha256：在 `/api/admin/upload` 中流式计算并写回 D1
 - 限速与风控：KV 计数实现 IP+slug 窗口限速
-- 更完整的软件列表页：发布时额外生成 `public/manifest-software.json`
-
+- 审计导出/过滤：按时间段导出 CSV，前端检索
+- 更完整的软件列表页：发布时生成专用 manifest（当前复用 search）
+- 自动化集成测试：使用 Miniflare/wrangler 对 `/d` `/go` 端到端回归

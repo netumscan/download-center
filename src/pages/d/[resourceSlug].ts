@@ -4,6 +4,7 @@ import { getCacheVersion, rmKey, kvGetJson, kvPutJson, defaultRmTtlSeconds } fro
 import { insertDownloadAudit } from "../../lib/audit";
 import { getExecCtx } from "../../lib/runtime";
 import { randomTokenBase64Url, sha256Hex, safeFilename, nowIso, parseCsvList } from "../../lib/util";
+import { parseRange } from "../../lib/download-logic";
 
 type RmCache = {
   id: number;
@@ -15,30 +16,6 @@ type RmCache = {
   sha256?: string | null;
   updated_at?: string | null;
 };
-
-function parseRange(range: string | null, size: number): { start: number; end: number } | null {
-  if (!range) return null;
-  const m = range.match(/^bytes=(\d*)-(\d*)$/);
-  if (!m) return null;
-  let startStr = m[1];
-  let endStr = m[2];
-  let start: number;
-  let end: number;
-  if (startStr === "" && endStr !== "") {
-    // suffix bytes: last N bytes
-    const n = Number(endStr);
-    if (!Number.isFinite(n) || n <= 0) return null;
-    start = Math.max(0, size - n);
-    end = size - 1;
-    return { start, end };
-  }
-  start = Number(startStr);
-  end = endStr ? Number(endStr) : size - 1;
-  if (!Number.isFinite(start) || !Number.isFinite(end)) return null;
-  if (start < 0 || end < start || start >= size) return null;
-  end = Math.min(end, size - 1);
-  return { start, end };
-}
 
 export async function GET(ctx: APIContext) {
   const env = getEnv(ctx);

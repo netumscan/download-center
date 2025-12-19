@@ -1,12 +1,178 @@
 <html>
-  <head><meta charset="utf-8" /><title>Admin</title></head>
+  <head>
+    <meta charset="utf-8" />
+    <title>Download Center Admin</title>
+    <style>
+      :root { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; }
+      body { margin: 24px; line-height: 1.6; }
+      h1, h2 { margin: 0 0 8px; }
+      section { border: 1px solid #ddd; padding: 16px; margin-bottom: 16px; border-radius: 8px; }
+      label { display: block; margin-bottom: 8px; }
+      input, select, textarea { width: 100%; box-sizing: border-box; padding: 6px; margin-top: 4px; }
+      textarea { min-height: 80px; }
+      button { padding: 8px 14px; cursor: pointer; }
+      .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+      .muted { color: #666; font-size: 12px; }
+      pre { background: #f7f7f7; padding: 8px; overflow: auto; }
+    </style>
+  </head>
   <body>
-    <h1>Admin Console</h1>
-    <p>本骨架仅提供后台 API 与 Access 保护约定。你可以在此处实现完整后台 UI。</p>
-    <ul>
-      <li><code>POST /api/admin/resources</code></li>
-      <li><code>POST /api/admin/upload</code></li>
-      <li><code>POST /api/admin/publish</code></li>
-    </ul>
+    <h1>Download Center Admin</h1>
+    <p class="muted">Cloudflare Access 已保护此页。操作前请确认你的账号具备相应角色权限（admin/editor）。</p>
+
+    <section>
+      <h2>1) 创建/更新资源记录</h2>
+      <div class="row">
+        <label>resource_id（业务唯一）<input id="resource_id" /></label>
+        <label>slug（URL 友好，仅字母数字._-）<input id="slug" /></label>
+        <label>标题<input id="title" /></label>
+        <label>设备分类
+          <select id="device_category">
+            <option value="scanner">scanner</option>
+            <option value="document_camera">document_camera</option>
+            <option value="printer">printer</option>
+            <option value="other">other</option>
+          </select>
+        </label>
+        <label>文件分类
+          <select id="file_category">
+            <option value="desktop_software">desktop_software</option>
+            <option value="mobile_software">mobile_software</option>
+            <option value="product_specs">product_specs</option>
+            <option value="user_manual">user_manual</option>
+            <option value="firmware">firmware</option>
+          </select>
+        </label>
+        <label>存储类型
+          <select id="storage_type">
+            <option value="R2">R2</option>
+            <option value="EXTERNAL">EXTERNAL</option>
+          </select>
+        </label>
+        <label id="external_url_label" style="display:none;">External URL (https，仅 allowlist)
+          <input id="external_url" placeholder="https://example.com/file.zip" />
+        </label>
+        <label>平台<input id="platform" placeholder="win/mac/linux/ios/android" /></label>
+        <label>架构<input id="arch" placeholder="x64/arm64" /></label>
+        <label>版本<input id="version" placeholder="v1.0.0" /></label>
+        <label>文件大小（字节，可选）<input id="file_size_bytes" type="number" min="0" /></label>
+        <label>sha256（可选，R2 上传后会覆盖）<input id="sha256" /></label>
+      </div>
+      <label>发布状态 <input id="is_published" type="checkbox" /> is_published</label>
+      <label>Release Notes<textarea id="release_notes"></textarea></label>
+      <button id="btn_create">创建资源</button>
+      <button id="btn_update">更新资源</button>
+      <div class="muted">创建：POST /api/admin/resources；更新：PATCH /api/admin/resources</div>
+      <pre id="res_output"></pre>
+    </section>
+
+    <section>
+      <h2>2) 上传小文件到 R2 (≤50MB)</h2>
+      <label>resource_id（需先创建存储类型为 R2 的资源）<input id="upload_resource_id" /></label>
+      <label>选择文件<input id="upload_file" type="file" /></label>
+      <button id="btn_upload">上传并回填</button>
+      <div class="muted">上传成功会更新 file_resources.r2_key / file_size_bytes / content_type / sha256</div>
+      <pre id="upload_output"></pre>
+    </section>
+
+    <section>
+      <h2>3) 发布生成 Manifest</h2>
+      <label>备注（可选）<input id="publish_note" /></label>
+      <button id="btn_publish">发布</button>
+      <div class="muted">POST /api/admin/publish 会生成 manifest + 更新缓存版本戳</div>
+      <pre id="publish_output"></pre>
+    </section>
+
+    <script type="module">
+      const $ = (id) => document.getElementById(id);
+      const output = (id, data) => { $(id).textContent = typeof data === "string" ? data : JSON.stringify(data, null, 2); };
+
+      const storageSelect = $("storage_type");
+      const externalLabel = $("external_url_label");
+      storageSelect.addEventListener("change", () => {
+        externalLabel.style.display = storageSelect.value === "EXTERNAL" ? "block" : "none";
+      });
+
+      async function api(path, opts) {
+        const res = await fetch(path, opts);
+        let json = null;
+        try { json = await res.json(); } catch { json = await res.text(); }
+        return { status: res.status, ok: res.ok, data: json };
+      }
+
+      $("btn_create").addEventListener("click", async () => {
+        const body = {
+          resource_id: $("resource_id").value.trim(),
+          slug: $("slug").value.trim(),
+          title: $("title").value.trim(),
+          device_category: $("device_category").value,
+          file_category: $("file_category").value,
+          storage_type: $("storage_type").value,
+          external_url: $("external_url").value.trim() || undefined,
+          platform: $("platform").value.trim() || undefined,
+          arch: $("arch").value.trim() || undefined,
+          version: $("version").value.trim() || undefined,
+          file_size_bytes: $("file_size_bytes").value ? Number($("file_size_bytes").value) : undefined,
+          sha256: $("sha256").value.trim() || undefined,
+          release_notes: $("release_notes").value || undefined,
+          is_published: $("is_published").checked
+        };
+        const res = await api("/api/admin/resources", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        output("res_output", res);
+      });
+
+      $("btn_update").addEventListener("click", async () => {
+        const body = {
+          id: $("resource_id").value.trim(),
+          title: $("title").value.trim() || undefined,
+          remark: undefined,
+          release_notes: $("release_notes").value || undefined,
+          is_published: $("is_published").checked,
+          file_size_bytes: $("file_size_bytes").value ? Number($("file_size_bytes").value) : undefined,
+          sha256: $("sha256").value.trim() || undefined,
+          platform: $("platform").value.trim() || undefined,
+          arch: $("arch").value.trim() || undefined,
+          version: $("version").value.trim() || undefined,
+          content_type: undefined,
+          external_url: $("external_url").value.trim() || undefined
+        };
+        const res = await api("/api/admin/resources", {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        output("res_output", res);
+      });
+
+      $("btn_upload").addEventListener("click", async () => {
+        const rid = $("upload_resource_id").value.trim();
+        const file = $("upload_file").files[0];
+        if (!rid || !file) {
+          output("upload_output", { error: "missing_resourceId_or_file" });
+          return;
+        }
+        const form = new FormData();
+        form.set("resourceId", rid);
+        form.set("file", file);
+        const res = await api("/api/admin/upload", { method: "POST", body: form });
+        output("upload_output", res);
+      });
+
+      $("btn_publish").addEventListener("click", async () => {
+        const body = {};
+        const note = $("publish_note").value.trim();
+        if (note) body.note = note;
+        const res = await api("/api/admin/publish", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(body)
+        });
+        output("publish_output", res);
+      });
+    </script>
   </body>
 </html>

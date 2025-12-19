@@ -1,12 +1,12 @@
 import type { APIContext } from "astro";
 import { requireAdminAccess } from "../../../lib/access";
 import { getEnv } from "../../../lib/runtime";
-import { nowIso } from "../../../lib/util";
+import { nowIso, sha256HexBytes } from "../../../lib/util";
 
 const MAX_BYTES = 50 * 1024 * 1024;
 
 export async function POST(ctx: APIContext) {
-  requireAdminAccess(ctx);
+  await requireAdminAccess(ctx, { roles: ["admin", "editor"] });
   const env = getEnv(ctx);
 
   const contentType = ctx.request.headers.get("content-type") || "";
@@ -34,7 +34,10 @@ export async function POST(ctx: APIContext) {
   const filename = file.name || "upload.bin";
   const r2Key = `resources/${row.device_category}/${row.file_category}/${row.slug}/${filename}`;
 
-  await env.R2_BUCKET.put(r2Key, file.stream(), {
+  const buf = await file.arrayBuffer();
+  const sha256 = await sha256HexBytes(buf);
+
+  await env.R2_BUCKET.put(r2Key, buf, {
     httpMetadata: {
       contentType: file.type || "application/octet-stream",
       cacheControl: "private, max-age=0, no-cache"
@@ -42,12 +45,13 @@ export async function POST(ctx: APIContext) {
   });
 
   await env.DB.prepare(
-    "UPDATE file_resources SET r2_bucket=?, r2_key=?, content_type=?, file_size_bytes=?, updated_at=? WHERE id=?"
+    "UPDATE file_resources SET r2_bucket=?, r2_key=?, content_type=?, file_size_bytes=?, sha256=?, updated_at=? WHERE id=?"
   ).bind(
     "R2_BUCKET",
     r2Key,
     file.type || "application/octet-stream",
     file.size,
+    sha256,
     nowIso(),
     row.id
   ).run();
@@ -58,6 +62,7 @@ export async function POST(ctx: APIContext) {
     slug: row.slug,
     r2_key: r2Key,
     file_size_bytes: file.size,
-    content_type: file.type || "application/octet-stream"
+    content_type: file.type || "application/octet-stream",
+    sha256
   }), { headers: { "content-type": "application/json; charset=utf-8" } });
 }

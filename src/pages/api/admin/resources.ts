@@ -1,23 +1,60 @@
 import type { APIContext } from "astro";
 import { requireAdminAccess } from "../../../lib/access";
 import { getEnv } from "../../../lib/runtime";
-import { nowIso } from "../../../lib/util";
+import { nowIso, parseCsvList } from "../../../lib/util";
 
-export async function POST(ctx: APIContext) {
-  requireAdminAccess(ctx);
-  const env = getEnv(ctx);
-  const b = await ctx.request.json();
+const ALLOWED_DEVICE: DeviceCategory[] = ["scanner", "document_camera", "printer", "other"];
+const ALLOWED_FILE: FileCategory[] = ["desktop_software", "mobile_software", "product_specs", "user_manual", "firmware"];
+const ALLOWED_STORAGE: StorageType[] = ["R2", "EXTERNAL"];
 
-  // Minimal validation (extend as needed)
-  const required = ["resource_id","slug","title","device_category","file_category","storage_type"];
-  for (const k of required) {
-    if (!b?.[k]) return new Response(JSON.stringify({ error: "missing_field", field: k }), { status: 400 });
+function jsonError(error: string, status = 400, extra: Record<string, any> = {}) {
+  return new Response(JSON.stringify({ error, ...extra }), {
+    status,
+    headers: { "content-type": "application/json; charset=utf-8" }
+  });
+}
+
+function validateSlug(slug: any): slug is string {
+  return typeof slug === "string" && !!slug && /^[a-zA-Z0-9._-]+$/.test(slug);
+}
+
+function validateExternalUrl(env: Env, urlStr: any) {
+  if (!urlStr) return { ok: false, error: "missing_external_url" };
+  let url: URL;
+  try {
+    url = new URL(String(urlStr));
+  } catch {
+    return { ok: false, error: "invalid_external_url" };
+  }
+  if (url.protocol !== "https:") {
+    return { ok: false, error: "external_url_must_be_https" };
   }
 
+  const allow = new Set(parseCsvList(env.EXTERNAL_ALLOWLIST).map((h) => h.toLowerCase()));
+  const host = url.host.toLowerCase();
+  if (allow.size === 0 || !allow.has(host)) {
+    return { ok: false, error: "external_host_not_allowed", host };
+  }
+  return { ok: true, url };
+}
+
+export async function POST(ctx: APIContext) {
+  await requireAdminAccess(ctx, { roles: ["admin", "editor"] });
+  const env = getEnv(ctx);
+  const b = await ctx.request.json().catch(() => ({} as Record<string, any>));
+
+  const required = ["resource_id", "slug", "title", "device_category", "file_category", "storage_type"];
+  for (const k of required) {
+    if (!b?.[k]) return jsonError("missing_field", 400, { field: k });
+  }
+  if (!validateSlug(b.slug)) return jsonError("invalid_slug");
+  if (!ALLOWED_DEVICE.includes(b.device_category)) return jsonError("invalid_device_category");
+  if (!ALLOWED_FILE.includes(b.file_category)) return jsonError("invalid_file_category");
+  if (!ALLOWED_STORAGE.includes(b.storage_type)) return jsonError("invalid_storage_type");
+
   if (b.storage_type === "EXTERNAL") {
-    if (!b.external_url) return new Response(JSON.stringify({ error: "missing_external_url" }), { status: 400 });
-    const url = new URL(String(b.external_url));
-    if (url.protocol !== "https:") return new Response(JSON.stringify({ error: "external_url_must_be_https" }), { status: 400 });
+    const v = validateExternalUrl(env, b.external_url);
+    if (!v.ok) return jsonError(v.error, 400, "host" in v ? { host: v.host } : undefined);
   }
 
   const stmt = env.DB.prepare(
@@ -52,14 +89,18 @@ export async function POST(ctx: APIContext) {
 }
 
 export async function PATCH(ctx: APIContext) {
-  requireAdminAccess(ctx);
+  await requireAdminAccess(ctx, { roles: ["admin", "editor"] });
   const env = getEnv(ctx);
-  const b = await ctx.request.json();
+  const b = await ctx.request.json().catch(() => ({} as Record<string, any>));
   const id = Number(b?.id);
-  if (!id) return new Response(JSON.stringify({ error: "missing_id" }), { status: 400 });
+  if (!id) return jsonError("missing_id");
 
-  // Update a subset; extend as needed
-  const fields = ["title","remark","release_notes","is_published","file_size_bytes","sha256","platform","arch","version","content_type","external_url"];
+  if (b.external_url !== undefined) {
+    const v = validateExternalUrl(env, b.external_url);
+    if (!v.ok) return jsonError(v.error, 400, "host" in v ? { host: v.host } : undefined);
+  }
+
+  const fields = ["title", "remark", "release_notes", "is_published", "file_size_bytes", "sha256", "platform", "arch", "version", "content_type", "external_url"];
   const sets: string[] = [];
   const values: any[] = [];
   for (const f of fields) {

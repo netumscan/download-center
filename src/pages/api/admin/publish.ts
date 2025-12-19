@@ -1,5 +1,5 @@
 import type { APIContext } from "astro";
-import { requireAdminAccess, getAccessIdentity } from "../../../lib/access";
+import { requireAdminAccess } from "../../../lib/access";
 import { buildAndPublishManifests } from "../../../lib/manifest";
 import { setCacheVersion } from "../../../lib/cache";
 import { nowIso } from "../../../lib/util";
@@ -13,13 +13,12 @@ function makePublishId(): string {
 }
 
 export async function POST(ctx: APIContext) {
-  requireAdminAccess(ctx);
+  const ident = await requireAdminAccess(ctx, { roles: ["admin"] });
 
   const body = await ctx.request.json().catch(() => ({}));
   const note = body?.note ? String(body.note) : undefined;
 
   const publishId = makePublishId();
-  const ident = getAccessIdentity(ctx.request);
 
   await buildAndPublishManifests(ctx, publishId, note, ident.email);
 

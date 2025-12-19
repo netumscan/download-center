@@ -1,4 +1,5 @@
 import type { APIContext } from "astro";
+import { getEnv } from "./runtime";
 
 export type AccessIdentity = {
   email?: string;
@@ -28,7 +29,26 @@ export function getAccessIdentity(request: Request): AccessIdentity {
   }
 }
 
-export function requireAdminAccess(_ctx: APIContext): void {
-  // Access is enforced by Cloudflare on /api/admin/*.
-  // Optional: implement RBAC using admin_roles.
+export async function requireAdminAccess(ctx: APIContext, opts?: { roles?: string[] }): Promise<AccessIdentity> {
+  const ident = getAccessIdentity(ctx.request);
+  if (!ident.email) {
+    throw new Response(JSON.stringify({ error: "unauthorized" }), {
+      status: 401,
+      headers: { "content-type": "application/json; charset=utf-8" }
+    });
+  }
+
+  const roles = opts?.roles ?? [];
+  if (roles.length === 0) return ident;
+
+  const env = getEnv(ctx);
+  const row = await env.DB.prepare("SELECT role FROM admin_roles WHERE email=?").bind(ident.email).first<any>();
+  const role = row?.role;
+  if (!role || !roles.includes(role)) {
+    throw new Response(JSON.stringify({ error: "forbidden" }), {
+      status: 403,
+      headers: { "content-type": "application/json; charset=utf-8" }
+    });
+  }
+  return ident;
 }

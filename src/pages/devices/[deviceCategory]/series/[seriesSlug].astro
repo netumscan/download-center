@@ -1,21 +1,46 @@
 ---
-const deviceCategory = Astro.params.deviceCategory;
-const seriesSlug = Astro.params.seriesSlug;
+const { deviceCategory, seriesSlug } = Astro.params;
 const res = await fetch(new URL("/api/public/devices", Astro.request.url));
 const data = res.ok ? await res.json() : null;
-const device = (data?.devices ?? []).find((d) => d.device_category === deviceCategory);
-const series = (device?.series ?? []).find((s) => s.slug === seriesSlug);
+const device = data?.devices?.find((d) => d.device_category === deviceCategory);
+const series = device?.series?.find((s) => s.slug === seriesSlug);
+const products = series?.products ?? [];
 ---
 <html>
-  <head><meta charset="utf-8" /><title>{series?.name ?? seriesSlug}</title></head>
+  <head>
+    <meta charset="utf-8" />
+    <title>{series?.name ?? seriesSlug}</title>
+  </head>
   <body>
-    <h1>系列：{series?.name ?? seriesSlug}</h1>
-    <h2>产品</h2>
-    <ul>
-      {(series?.products ?? []).map((p) => (
-        <li><a href={`/products/${p.slug}`}>{p.name}</a></li>
-      ))}
-    </ul>
-    <p><a href={`/devices/${deviceCategory}`}>返回系列</a></p>
+    {series ? (
+      <>
+        <h1>{series.name}</h1>
+        {series.description && <p>{series.description}</p>}
+
+        <h2>产品</h2>
+        {products.length === 0 ? (
+          <p>暂无产品</p>
+        ) : (
+          <ul>
+            {products.map((p) => (
+              <li>
+                <a href={`/products/${p.slug}`}>{p.name}</a>
+                {p.remark && <> - {p.remark}</>}
+              </li>
+            ))}
+          </ul>
+        )}
+      </>
+    ) : (
+      <p>未找到该系列</p>
+    )}
+
+    <p>
+      <a href={`/devices/${deviceCategory}`}>返回设备分类</a>
+      {" | "}
+      <a href="/devices">按设备浏览</a>
+      {" | "}
+      <a href="/">首页</a>
+    </p>
   </body>
 </html>

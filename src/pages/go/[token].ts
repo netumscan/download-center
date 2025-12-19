@@ -2,10 +2,7 @@ import type { APIContext } from "astro";
 import { getEnv, getExecCtx } from "../../lib/runtime";
 import { sha256Hex, parseCsvList } from "../../lib/util";
 import { insertDownloadAudit } from "../../lib/audit";
-
-function hostFromUrl(u: string): string | null {
-  try { return new URL(u).host.toLowerCase(); } catch { return null; }
-}
+import { hostFromUrl } from "../../lib/download-logic";
 
 export async function GET(ctx: APIContext) {
   const env = getEnv(ctx);

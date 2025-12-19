@@ -12,7 +12,7 @@ EXTERNAL_ALLOWLIST = "pan.gzxlscan.cn,cloudflare.mayitek.com,hwfotadown.mayitek.
 [[d1_databases]]
 binding = "DB"
 database_name = "download-center-db"
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "2d6a82bb-71c4-4cfa-ac3c-391867ebd245"
 
 [[r2_buckets]]
 binding = "R2_BUCKET"
@@ -20,4 +20,4 @@ bucket_name = "download-center-r2"
 
 [[kv_namespaces]]
 binding = "KV_CACHE"
-id = "REPLACE_WITH_KV_NAMESPACE_ID"
+id = "225d1f6d7c72478493e1590c628060a0"
