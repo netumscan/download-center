@@ -1,0 +1,274 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2025-12-19T02:55:31Z",
+  "assets": [
+    {
+      "id": "desktop-windows-x86-netumscan-pro",
+      "category": "desktop",
+      "subtype": "app",
+      "platform": "windows",
+      "arch": "x86",
+      "name": "NetumScan Pro (Windows x86)",
+      "version": "",
+      "type": "direct",
+      "url": "https://pan.gzxlscan.cn/s/j7njvb"
+    },
+    {
+      "id": "desktop-windows-x64-netumscan-pro",
+      "category": "desktop",
+      "subtype": "app",
+      "platform": "windows",
+      "arch": "x64",
+      "name": "NetumScan Pro (Windows x64)",
+      "version": "",
+      "type": "direct",
+      "url": "https://pan.gzxlscan.cn/s/dg4ldn"
+    },
+    {
+      "id": "desktop-macos-arm64-netumscan-pro",
+      "category": "desktop",
+      "subtype": "app",
+      "platform": "macos",
+      "arch": "arm64",
+      "name": "NetumScan Pro (Macos arm64)",
+      "version": "",
+      "type": "direct",
+      "url": "https://pan.gzxlscan.cn/s/o3v8on"
+    },
+    {
+      "id": "desktop-macos-x86_64-netumscan-pro",
+      "category": "desktop",
+      "subtype": "app",
+      "platform": "macos",
+      "arch": "x86_64",
+      "name": "NetumScan Pro (Macos x86_64)",
+      "version": "",
+      "type": "direct",
+      "url": "https://pan.gzxlscan.cn/s/eemfde"
+    },
+    {
+      "id": "desktop-linux-arm64-netumscan-pro",
+      "category": "desktop",
+      "subtype": "app",
+      "platform": "linux",
+      "arch": "arm64",
+      "name": "NetumScan Pro (Linux arm64)",
+      "version": "",
+      "type": "direct",
+      "url": "https://pan.gzxlscan.cn/s/0flmpv"
+    },
+    {
+      "id": "desktop-linux-amd64-netumscan-pro",
+      "category": "desktop",
+      "subtype": "app",
+      "platform": "linux",
+      "arch": "amd64",
+      "name": "NetumScan Pro (Linux amd64)",
+      "version": "",
+      "type": "direct",
+      "url": "https://pan.gzxlscan.cn/s/hw2ppu"
+    },
+    {
+      "id": "doc-manual-netumscan-pro",
+      "category": "docs",
+      "subtype": "manual",
+      "format": "pdf",
+      "name": "NetumScan Pro 使用文档",
+      "version": "",
+      "type": "direct",
+      "url": "https://pan.gzxlscan.cn/s/gb9cnl"
+    },
+    {
+      "id": "desktop-windows-x86-netumvisualizer",
+      "category": "desktop",
+      "subtype": "app",
+      "platform": "windows",
+      "arch": "x86",
+      "name": "NetumVisualizer (Windows x86)",
+      "version": "",
+      "type": "direct",
+      "url": "https://pan.gzxlscan.cn/s/j7njvb"
+    },
+    {
+      "id": "desktop-windows-x64-netumvisualizer",
+      "category": "desktop",
+      "subtype": "app",
+      "platform": "windows",
+      "arch": "x64",
+      "name": "NetumVisualizer (Windows x64)",
+      "version": "",
+      "type": "direct",
+      "url": "https://pan.gzxlscan.cn/s/dg4ldn"
+    },
+    {
+      "id": "desktop-macos-arm64-netumvisualizer",
+      "category": "desktop",
+      "subtype": "app",
+      "platform": "macos",
+      "arch": "arm64",
+      "name": "NetumVisualizer (Macos arm64)",
+      "version": "",
+      "type": "direct",
+      "url": "https://pan.gzxlscan.cn/s/o3v8on"
+    },
+    {
+      "id": "desktop-macos-x86_64-netumvisualizer",
+      "category": "desktop",
+      "subtype": "app",
+      "platform": "macos",
+      "arch": "x86_64",
+      "name": "NetumVisualizer (Macos x86_64)",
+      "version": "",
+      "type": "direct",
+      "url": "https://pan.gzxlscan.cn/s/eemfde"
+    },
+    {
+      "id": "desktop-linux-arm64-netumvisualizer",
+      "category": "desktop",
+      "subtype": "app",
+      "platform": "linux",
+      "arch": "arm64",
+      "name": "NetumVisualizer (Linux arm64)",
+      "version": "",
+      "type": "direct",
+      "url": "https://pan.gzxlscan.cn/s/0flmpv"
+    },
+    {
+      "id": "desktop-linux-amd64-netumvisualizer",
+      "category": "desktop",
+      "subtype": "app",
+      "platform": "linux",
+      "arch": "amd64",
+      "name": "NetumVisualizer (Linux amd64)",
+      "version": "",
+      "type": "direct",
+      "url": "https://pan.gzxlscan.cn/s/hw2ppu"
+    },
+    {
+      "id": "doc-manual-netumvisualizer",
+      "category": "docs",
+      "subtype": "manual",
+      "format": "pdf",
+      "name": "NetumVisualizer 使用文档",
+      "version": "",
+      "type": "direct",
+      "url": "https://pan.gzxlscan.cn/s/gb9cnl"
+    }
+  ],
+  "devices": [
+    {
+      "deviceType": "scanner",
+      "name": "扫描枪",
+      "models": []
+    },
+    {
+      "deviceType": "printer",
+      "name": "打印机",
+      "models": []
+    },
+    {
+      "deviceType": "photo_printer",
+      "name": "拍印机",
+      "models": []
+    },
+    {
+      "deviceType": "document_scanner",
+      "name": "高拍仪",
+      "models": [
+        {
+          "model": "Netum 高拍仪（通用）",
+          "sku": "NETUM-DOC",
+          "tags": [
+            "高拍仪"
+          ],
+          "links": [
+            {
+              "label": "NetumScan Pro - Windows (x64)",
+              "assetId": "desktop-windows-x64-netumscan-pro",
+              "role": "recommended",
+              "sort": 10
+            },
+            {
+              "label": "NetumScan Pro - Windows (x86)",
+              "assetId": "desktop-windows-x86-netumscan-pro",
+              "role": "optional",
+              "sort": 20
+            },
+            {
+              "label": "NetumScan Pro - macOS (arm64)",
+              "assetId": "desktop-macos-arm64-netumscan-pro",
+              "role": "recommended",
+              "sort": 30
+            },
+            {
+              "label": "NetumScan Pro - macOS (x86_64)",
+              "assetId": "desktop-macos-x86_64-netumscan-pro",
+              "role": "optional",
+              "sort": 40
+            },
+            {
+              "label": "NetumScan Pro - Linux (amd64)",
+              "assetId": "desktop-linux-amd64-netumscan-pro",
+              "role": "recommended",
+              "sort": 50
+            },
+            {
+              "label": "NetumScan Pro - Linux (arm64)",
+              "assetId": "desktop-linux-arm64-netumscan-pro",
+              "role": "optional",
+              "sort": 60
+            },
+            {
+              "label": "NetumScan Pro - 使用文档(PDF)",
+              "assetId": "doc-manual-netumscan-pro",
+              "role": "recommended",
+              "sort": 70
+            },
+            {
+              "label": "NetumVisualizer - Windows (x64)",
+              "assetId": "desktop-windows-x64-netumvisualizer",
+              "role": "recommended",
+              "sort": 80
+            },
+            {
+              "label": "NetumVisualizer - Windows (x86)",
+              "assetId": "desktop-windows-x86-netumvisualizer",
+              "role": "optional",
+              "sort": 90
+            },
+            {
+              "label": "NetumVisualizer - macOS (arm64)",
+              "assetId": "desktop-macos-arm64-netumvisualizer",
+              "role": "recommended",
+              "sort": 100
+            },
+            {
+              "label": "NetumVisualizer - macOS (x86_64)",
+              "assetId": "desktop-macos-x86_64-netumvisualizer",
+              "role": "optional",
+              "sort": 110
+            },
+            {
+              "label": "NetumVisualizer - Linux (amd64)",
+              "assetId": "desktop-linux-amd64-netumvisualizer",
+              "role": "recommended",
+              "sort": 120
+            },
+            {
+              "label": "NetumVisualizer - Linux (arm64)",
+              "assetId": "desktop-linux-arm64-netumvisualizer",
+              "role": "optional",
+              "sort": 130
+            },
+            {
+              "label": "NetumVisualizer - 使用文档(PDF)",
+              "assetId": "doc-manual-netumvisualizer",
+              "role": "recommended",
+              "sort": 140
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
