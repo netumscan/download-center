@@ -1,6 +1,7 @@
 name = "download-center"
 main = "dist/_worker.js"
 compatibility_date = "2025-12-01"
+compatibility_flags = ["nodejs_compat"]
 
 # NOTE:
 # - Run `npm run build` to generate dist/_worker.js before deploying.
